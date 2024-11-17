@@ -20,6 +20,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Копируем остальные файлы проекта
 COPY . /app/
 
+# Собираем статические файлы
+RUN python manage.py collectstatic --noinput
+
 # Открываем порт 5005 для доступа к приложению
 EXPOSE 8000
 
