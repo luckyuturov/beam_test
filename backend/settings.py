@@ -129,9 +129,8 @@ USE_TZ = True
 STATIC_URL = '/static/' 
 STATIC_ROOT = BASE_DIR / 'staticfiles' 
 
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',  
-    '/usr/local/lib/python3.10/site-packages/drf_yasg/static', 
+STATICFILES_DIRS = [  
+    '/usr/local/lib/python3.10/site-packages/drf_yasg/static',
 ]
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
