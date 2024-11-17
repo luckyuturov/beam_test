@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .section {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            max-width: 600px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 5px;
+            margin-top: 5px;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 10px;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>CRUD Dashboard</h1>
+
+    <!-- Section for Products -->
+    <div class="section">
+        <h2>Products</h2>
+        <label for="product-id">Product ID:</label>
+        <input type="number" id="product-id" placeholder="Product ID (for PUT/PATCH/DELETE)">
+        
+        <label for="product-name">Name:</label>
+        <input type="text" id="product-name" placeholder="Product Name">
+        
+        <label for="product-description">Description:</label>
+        <textarea id="product-description" placeholder="Product Description"></textarea>
+        
+        <label for="product-price">Price:</label>
+        <input type="number" id="product-price" placeholder="Product Price">
+        
+        <label for="product-category">Category ID:</label>
+        <input type="number" id="product-category" placeholder="Category ID">
+        
+        <label for="product-vendor">Vendor ID:</label>
+        <input type="number" id="product-vendor" placeholder="Vendor ID">
+        
+        <button onclick="createProduct()">Create Product</button>
+        <button onclick="getProducts()">Get All Products</button>
+        <button onclick="updateProduct()">Update Product (PUT)</button>
+        <button onclick="patchProduct()">Patch Product</button>
+        <button onclick="deleteProduct()">Delete Product</button>
+        <div class="result" id="product-result"></div>
+    </div>
+
+    <!-- Section for Categories -->
+    <div class="section">
+        <h2>Categories</h2>
+        <label for="category-id">Category ID:</label>
+        <input type="number" id="category-id" placeholder="Category ID (for PUT/PATCH/DELETE)">
+        
+        <label for="category-name">Name:</label>
+        <input type="text" id="category-name" placeholder="Category Name">
+        
+        <label for="category-description">Description:</label>
+        <textarea id="category-description" placeholder="Category Description"></textarea>
+        
+        <label for="category-vendors">Vendors (comma-separated IDs):</label>
+        <input type="text" id="category-vendors" placeholder="1,2,3">
+        
+        <button onclick="createCategory()">Create Category</button>
+        <button onclick="getCategories()">Get All Categories</button>
+        <button onclick="updateCategory()">Update Category (PUT)</button>
+        <button onclick="patchCategory()">Patch Category</button>
+        <button onclick="deleteCategory()">Delete Category</button>
+        <div class="result" id="category-result"></div>
+    </div>
+
+    <!-- Section for Vendors -->
+    <div class="section">
+        <h2>Vendors</h2>
+        <label for="vendor-id">Vendor ID:</label>
+        <input type="number" id="vendor-id" placeholder="Vendor ID (for PUT/PATCH/DELETE)">
+        
+        <label for="vendor-name">Name:</label>
+        <input type="text" id="vendor-name" placeholder="Vendor Name">
+        
+        <label for="vendor-categories">Categories (comma-separated IDs):</label>
+        <input type="text" id="vendor-categories" placeholder="1,2,3">
+        
+        <button onclick="createVendor()">Create Vendor</button>
+        <button onclick="getVendors()">Get All Vendors</button>
+        <button onclick="updateVendor()">Update Vendor (PUT)</button>
+        <button onclick="patchVendor()">Patch Vendor</button>
+        <button onclick="deleteVendor()">Delete Vendor</button>
+        <div class="result" id="vendor-result"></div>
+    </div>
+
+    <script>
+        function displayResult(elementId, data) {
+            const resultDiv = document.getElementById(elementId);
+            resultDiv.textContent = JSON.stringify(data, null, 2);
+        }
+
+        // CRUD for Products
+        async function createProduct() {
+            const name = document.getElementById('product-name').value;
+            const description = document.getElementById('product-description').value;
+            const price = document.getElementById('product-price').value;
+            const category = parseInt(document.getElementById('product-category').value, 10);
+            const vendor = parseInt(document.getElementById('product-vendor').value, 10);
+
+            const response = await fetch('/api/products/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, description, price, category, vendor }),
+            });
+
+            const data = await response.json();
+            displayResult('product-result', data);
+        }
+
+        async function getProducts() {
+            const response = await fetch('/api/products/');
+            const data = await response.json();
+            displayResult('product-result', data);
+        }
+
+        async function updateProduct() {
+            const id = document.getElementById('product-id').value;
+            const name = document.getElementById('product-name').value;
+            const description = document.getElementById('product-description').value;
+            const price = document.getElementById('product-price').value;
+            const category = document.getElementById('product-category').value;
+            const vendor = document.getElementById('product-vendor').value;
+
+            const response = await fetch(`/api/products/${id}/`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, description, price, category, vendors: [vendor] }),
+            });
+            const data = await response.json();
+            displayResult('product-result', data);
+        }
+
+        async function patchProduct() {
+            const id = document.getElementById('product-id').value;
+            const price = document.getElementById('product-price').value;
+
+            const response = await fetch(`/api/products/${id}/`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ price }),
+            });
+            const data = await response.json();
+            displayResult('product-result', data);
+        }
+
+        async function deleteProduct() {
+            const id = document.getElementById('product-id').value;
+
+            const response = await fetch(`/api/products/${id}/`, {
+                method: 'DELETE',
+            });
+            if (response.status === 204) {
+                displayResult('product-result', { message: 'Product deleted successfully' });
+            }
+        }
+
+        // CRUD for Categories
+        async function createCategory() {
+            const name = document.getElementById('category-name').value;
+            const description = document.getElementById('category-description').value;
+            const vendors = document.getElementById('category-vendors').value.split(',');
+
+            const response = await fetch('/api/categories/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, description, vendors }),
+            });
+            const data = await response.json();
+            displayResult('category-result', data);
+        }
+
+        async function getCategories() {
+            const response = await fetch('/api/categories/');
+            const data = await response.json();
+            displayResult('category-result', data);
+        }
+
+        async function updateCategory() {
+            const id = document.getElementById('category-id').value;
+            const name = document.getElementById('category-name').value;
+            const description = document.getElementById('category-description').value;
+            const vendors = document.getElementById('category-vendors').value.split(',');
+
+            const response = await fetch(`/api/categories/${id}/`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, description, vendors }),
+            });
+            const data = await response.json();
+            displayResult('category-result', data);
+        }
+
+        async function patchCategory() {
+            const id = document.getElementById('category-id').value;
+            const description = document.getElementById('category-description').value;
+
+            const response = await fetch(`/api/categories/${id}/`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ description }),
+            });
+            const data = await response.json();
+            displayResult('category-result', data);
+        }
+
+        async function deleteCategory() {
+            const id = document.getElementById('category-id').value;
+
+            const response = await fetch(`/api/categories/${id}/`, {
+                method: 'DELETE',
+            });
+            if (response.status === 204) {
+                displayResult('category-result', { message: 'Category deleted successfully' });
+            }
+        }
+
+        // CRUD for Vendors
+        async function createVendor() {
+            const name = document.getElementById('vendor-name').value;
+            const categories = document.getElementById('vendor-categories').value.split(',');
+
+            const response = await fetch('/api/vendors/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, categories }),
+            });
+            const data = await response.json();
+            displayResult('vendor-result', data);
+        }
+
+        async function getVendors() {
+            const response = await fetch('/api/vendors/');
+            const data = await response.json();
+            displayResult('vendor-result', data);
+        }
+
+        async function updateVendor() {
+            const id = document.getElementById('vendor-id').value;
+            const name = document.getElementById('vendor-name').value;
+            const categories = document.getElementById('vendor-categories').value.split(',');
+
+            const response = await fetch(`/api/vendors/${id}/`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, categories }),
+            });
+            const data = await response.json();
+            displayResult('vendor-result', data);
+        }
+
+        async function patchVendor() {
+            const id = document.getElementById('vendor-id').value;
+            const name = document.getElementById('vendor-name').value;
+
+            const response = await fetch(`/api/vendors/${id}/`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name }),
+            });
+            const data = await response.json();
+            displayResult('vendor-result', data);
+        }
+
+        async function deleteVendor() {
+            const id = document.getElementById('vendor-id').value;
+
+            const response = await fetch(`/api/vendors/${id}/`, {
+                method: 'DELETE',
+            });
+            if (response.status === 204) {
+                displayResult('vendor-result', { message: 'Vendor deleted successfully' });
+            }
+        }
+    </script>
+</body>
+</html>
